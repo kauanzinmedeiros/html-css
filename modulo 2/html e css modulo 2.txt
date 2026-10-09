@@ -1,0 +1,16 @@
+circulo cromatico (12 cores principais)
+
+cores primarias - amarelo, vermelho e azul
+
+cores secundarias - laranja, violeta e verde
+
+cores terciarias - primaria + secundaria
+
+temperatura de cores - cores frias / cores quentes
+
+paleta de cores - 3 a 5 cores
+
+
+
+
+

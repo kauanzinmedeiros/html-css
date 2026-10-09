@@ -1,0 +1,135 @@
+INTERNET - http(Hypertext Transfer Protocol) - html(hypertext marckup language) - www(world wide web)
+
+MB = megabytes
+Mb = megabits
+
+domínio <=> dns <=> servidor
+
+-domínio: nome que identifica o site (nome único, pago anualmente, vários TLD's)
+
+-hospedagem: local onde o site fica armazenado (pago mensalmente, espaço, memória, recursos)
+
+URL - UNIFORM RESOURCES LOCATOR = LOCALIZADOR DE RECURSO UNIFORME/ÚNICO
+
+www.github.com/gustavoguanabara = URL
+
+github.com = domínio
+
+.com/.net/ = TLD (top level domain)
+
+.rio/.gov/.educa/.io = GTLD (generic top level 
+domain)
+
+.br/.us/.uk = CCTLD (country code top level domain)
+www = sub-domínio
+
+depois da "/" (/gustavoguanabara) = caminho
+
+
+
+HTML E CSS = DESENVOLVO ELES, NÃO PROGRAMO
+
+HTML (HYPERTEXT MARKUP LANGUAGE) - LINGUAGEM DE MARCAÇÃO HYPERTEXTO
+
+CSS (CASCADING STYLE SHEETS) - FOLHAS DE ESTILO EM CASCATA
+
+HTML = CONTEÚDO (texto, imagem, vídeos, tabelas)
+CSS = DESIGN (cores, sombras, tamanhos, posicionamento)
+JAVASCRIPT = INTERAÇÕES (menus, animações, popups, validações)
+
+HTML:
+
+<h1> - abertura de tag
+título - conteúdo
+</h1> - fechamento de tag
+
+<p>
+parágrafo
+</p>
+
+<img src="foto.png" alt="Exemplo de foto">
+abertura de tag
+parâmetro = alt
+valor = "Exemplo de foto"
+
+CSS:
+
+h1(seletor){   declaração
+            font-family:Arial;
+            font-size: 20pt;
+            color: blue; - valor
+       } (propriedade)
+
+
+ESTRUTURA BÁSICA DE UM DOC HTML:
+
+<!DOCTYPE html>
+<html lang="pt-br">
+.  <head>
+.    <meta charset="UTF-8">
+.    <meta name="viewport"
+.    content="width=device-width, initial-.    scale=1.0">
+.    <title>Document</title> 
+.  .
+.  </head>
+.  <body>
+.  .
+.     <h1>Olá, Mundo</h1>
+.  .
+.  </body>
+</html>
+
+
+
+	********************
+	**MODELO DE CAIXAS**
+	********************
+
+height = altura
+width = largura
+border = linha que circunda o conteudo
+padding = preenchimento(espaço entre a borda e o conteudo)
+margin = margem(espaço da borda pra fora)
+outline = contorno(borda fora do elemento)
+
+
+	********************
+	**TIPOS DE CAIXAS***
+	********************
+
+
+box-level = se criar outra caixa, pula pra linha de baixo, uma linha nova.(<div>)
+
+inline-level= se criar outra caixa, mantém na mesma linha.(<span>)
+
+box-level:	|	inline-level
+<div>		|	<span>
+<h1>		|	<a>
+<p>		|	<code>
+<main>		|	<small>
+<header>	|	<strong>
+<nav>		|	<em>
+<article>	|	<sup/sub>
+<aside>		|	<label>
+<footer>	|	<button>
+<form>		|	<input>
+<video>		|	<select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

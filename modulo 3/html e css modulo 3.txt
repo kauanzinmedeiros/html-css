@@ -1,0 +1,4 @@
+
+git - gerenciador de versões (repositório local)
+
+github - backup em nuvem (repositório remoto)
