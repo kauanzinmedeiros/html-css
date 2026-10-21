@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Comparador de Agendamentos x Cadastro</title>
+
+    <!-- Excel / CSV / XLSX -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <!-- PDF.js -->
+    <script type="module">
+        import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+        window.pdfjsLib = pdfjsLib;
+        window.pdfjsPronto = true;
+    </script>
+
+    <style>
+        :root{color-scheme:light;--ink:#17263b;--muted:#62738a;--line:#cbd5e2;--paper:#edf2f8;--canvas:#dce5f0;--navy:#102a4c;--blue:#315d8d;--teal:#496887;--gold:#c6a15b;--shadow:0 20px 50px rgba(16,42,76,.16);--radius:18px}
+        *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);background:radial-gradient(ellipse at 8% -5%,rgba(75,112,157,.45),transparent 34%),radial-gradient(ellipse at 100% 45%,rgba(193,161,95,.14),transparent 28%),linear-gradient(145deg,#dfe8f2,#d4dfec 55%,#e5e9ed);font-family:Inter,"Segoe UI",ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+        .container{width:min(1000px,calc(100% - 48px));margin:24px auto 72px}.card{position:relative;background:linear-gradient(145deg,#f0f4f9,#e7edf5);border:1px solid rgba(191,204,220,.95);border-radius:var(--radius);padding:clamp(24px,4vw,42px);margin-bottom:24px;box-shadow:var(--shadow)}
+        .container>.card:first-child{overflow:hidden;padding-top:17px;background:linear-gradient(135deg,#eaf0f7,#e2eaf3 58%,#e9edf1)}.container>.card:first-child:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#102a4c 0 42%,#c6a15b 42% 68%,#315d8d 68%)}
+        h2{margin:0 0 24px;color:#102a4c;font-size:clamp(21px,3vw,27px);letter-spacing:-.03em}.descricao{max-width:1000px;margin:0 0 30px;padding:17px 20px;border-left:3px solid #c6a15b;border-radius:0 12px 12px 0;background:linear-gradient(100deg,#dce6f1,#e5ebf2 70%,#eee8db);color:#53647a;font-size:13px;line-height:2.0}.descricao strong{color:#1e3451;font-weight:550}
+        .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.campo{padding:17px 17px 15px;border:1px solid #cbd6e3;border-radius:14px;background:linear-gradient(145deg,#e5edf6,#edf2f7);transition:border-color .2s,box-shadow .2s,transform .2s}.campo:nth-child(2){background:linear-gradient(145deg,#e9edf3,#e2eaf3)}.campo:nth-child(3){background:linear-gradient(145deg,#e1eaf3,#e9eef4)}.campo:nth-child(4){background:linear-gradient(145deg,#e7edf4,#e9e9e3)}.campo:focus-within{border-color:#c6a15b;box-shadow:0 6px 20px rgba(16,42,76,.12);transform:translateY(-1px)}.campo label{display:block;margin-bottom:9px;color:#243a57;font-size:13px;font-weight:750}
+        .campo input[type=date],.campo input[type=file]{display:block;width:100%;min-height:47px;padding:10px 12px;color:#293c56;border:1px solid #c3cedb;border-radius:10px;background:#f4f6f8;font:inherit;font-size:13px;transition:border-color .18s,box-shadow .18s}.campo input[type=file]{padding:7px;background:#e8edf3}.campo input[type=file]::file-selector-button{margin-right:11px;padding:8px 11px;color:#173657;border:1px solid #c6d1df;border-radius:7px;background:#d7e1ed;font:inherit;font-size:12px;font-weight:750;cursor:pointer;transition:background .18s}.campo input[type=file]::file-selector-button:hover{background:#c9d7e7}.campo input:focus-visible{outline:0;border-color:#c6a15b;box-shadow:0 0 0 4px rgba(198,161,91,.2)}.ajuda{margin-top:8px;color:#718096;font-size:11px;line-height:1.5}
+        .acoes{display:flex;flex-wrap:wrap;gap:11px;margin-top:25px}button{min-height:46px;padding:0 20px;border:1px solid transparent;border-radius:10px;font:inherit;font-size:13px;font-weight:750;cursor:pointer;transition:transform .16s,box-shadow .16s,filter .16s,opacity .16s}button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 9px 18px rgba(16,42,76,.2);filter:brightness(1.06)}button:focus-visible{outline:3px solid rgba(198,161,91,.36);outline-offset:2px}button:disabled{opacity:.45;cursor:not-allowed}.btn-principal{color:#fff;background:linear-gradient(135deg,#173a63,#102a4c);box-shadow:0 5px 12px rgba(16,42,76,.2)}.btn-excel{color:#1f2d3f;background:linear-gradient(135deg,#dec98f,#c6a15b);border-color:#b99146}.btn-secundario{color:#29415e;background:#e0e8f1;border-color:#bdcad9}
+        .status{position:relative;margin-top:21px;padding:15px 17px 15px 45px;color:#294661;background:linear-gradient(100deg,#dce8f3,#e6ecf2);border:1px solid #c6d5e4;border-radius:11px;white-space:pre-line;line-height:1.65;font-size:13px}.status:before{content:"i";position:absolute;left:16px;top:15px;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#c6d7e8;color:#173a63;font-size:12px;font-weight:850}.status.erro{color:#873f3c;background:#f2e4e1;border-color:#dfc2bc}.status.erro:before{content:"!";background:#e7c8c1;color:#873f3c}
+        #resultadoCard{overflow:hidden;background:linear-gradient(145deg,#eaf0f6,#e1e9f2)}#resultadoCard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(#102a4c 0 58%,#c6a15b 58%)}#resultadoCard h2{padding-bottom:18px;border-bottom:1px solid #cbd5e1}
+        .estatisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:24px}.estatistica{position:relative;overflow:hidden;min-height:119px;padding:19px 20px;border:1px solid #bdcbd9;border-radius:14px;background:linear-gradient(145deg,#dbe6f1,#e4ebf3)}.estatistica:after{content:"";position:absolute;right:-20px;bottom:-34px;width:90px;height:90px;border:1px solid rgba(16,42,76,.13);border-radius:50%;box-shadow:0 0 0 12px rgba(16,42,76,.035),0 0 0 25px rgba(16,42,76,.025)}.estatistica:nth-child(2){background:linear-gradient(145deg,#d9e4ef,#e4ebf2)}.estatistica:nth-child(3){background:linear-gradient(145deg,#eee5d3,#e9e6df);border-color:#dacba9}.estatistica:nth-child(4){background:linear-gradient(145deg,#dce5ed,#e7ebef)}.estatistica span{position:relative;z-index:1;display:block;color:#5e6f84;font-size:11px;font-weight:750;line-height:1.5}.estatistica strong{position:relative;z-index:1;display:block;margin-top:13px;color:#173a63;font-size:32px;line-height:1;letter-spacing:-.045em}.estatistica:nth-child(2) strong{color:#315d8d}.estatistica:nth-child(3) strong{color:#9a7735}.estatistica:nth-child(4) strong{color:#405c79}
+        .tabela-container{width:100%;overflow:auto;border:1px solid #c4cfdb;border-radius:13px;background:#e9eef4}table{width:100%;min-width:850px;border-collapse:separate;border-spacing:0}th,td{padding:14px 16px;border-bottom:1px solid #d4dce5;text-align:left}th{position:sticky;top:0;color:#f3f4f5;background:#173657;font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}th:first-child{border-top-left-radius:11px}th:last-child{border-top-right-radius:11px}td{color:#30435a;font-size:13px}tbody tr:nth-child(even){background:#e1e8f0}tbody tr:hover{background:#d4e0ed}tbody tr:last-child td{border-bottom:0}.vazio{padding:40px;color:#65758a;text-align:center}
+        @media(max-width:760px){.container{width:min(100% - 24px,620px);margin:16px auto 40px}.card{padding:23px 18px;margin-bottom:16px;border-radius:16px}.grid{grid-template-columns:1fr;gap:13px}.estatisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.estatistica{min-height:104px;padding:15px}.estatistica strong{font-size:28px}}
+        @media(max-width:420px){.acoes{display:grid;grid-template-columns:1fr}.acoes button{width:100%}.estatisticas{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="card">
+
+            <h1 style="text-align: center;">Comparador de Agendamentos x Cadastro</h1>
+
+            <div class="descricao">
+                O sistema pega <strong>todos os pacientes das planilhas de agendamento</strong>
+                dentro do período escolhido e verifica se eles aparecem no cadastro dos PDFs.
+            </div>
+
+            <div class="grid">
+
+                <div class="campo">
+                    <label for="dataInicial">
+                        Data inicial
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dataInicial"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="dataFinal">
+                        Data final
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dataFinal"
+                    >
+                </div>
+
+                <div class="campo">
+                    <label for="planilhas">
+                        Planilhas de agendamento
+                    </label>
+
+                    <input
+                        type="file"
+                        id="planilhas"
+                        multiple
+                        accept=".csv,.xlsx,.xls"
+                    >
+
+                    <div class="ajuda">
+                        Selecione uma ou várias planilhas.
+                    </div>
+                </div>
+
+                <div class="campo">
+                    <label for="pdfs">
+                        PDFs do cadastro
+                    </label>
+
+                    <input
+                        type="file"
+                        id="pdfs"
+                        multiple
+                        accept=".pdf"
+                    >
+
+                    <div class="ajuda">
+                        Selecione um ou vários PDFs. Todos serão considerados juntos.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="acoes">
+
+                <button
+                    class="btn-principal"
+                    id="btnProcessar"
+                    onclick="processarArquivos()"
+                >
+                    Processar arquivos
+                </button>
+
+                <button
+                    class="btn-excel"
+                    id="btnExportar"
+                    onclick="exportarExcel()"
+                    disabled
+                >
+                    Exportar para Excel
+                </button>
+
+                <button
+                    class="btn-secundario"
+                    onclick="limparTudo()"
+                >
+                    Limpar
+                </button>
+
+            </div>
+
+            <div
+                id="status"
+                class="status"
+            >
+                Selecione o período e os arquivos.
+            </div>
+
+        </div>
+
+
+        <div
+            class="card"
+            id="resultadoCard"
+            style="display: none;"
+        >
+
+            <h2>Pacientes da planilha que não estão no cadastro</h2>
+
+            <div class="estatisticas">
+
+                <div class="estatistica">
+                    <span>Agendamentos no período</span>
+                    <strong id="totalPeriodo">0</strong>
+                </div>
+
+                <div class="estatistica">
+                    <span>Pacientes no cadastro</span>
+                    <strong id="totalCadastro">0</strong>
+                </div>
+
+                <div class="estatistica">
+                    <span>Não encontrados no cadastro</span>
+                    <strong id="totalFaltosos">0</strong>
+                </div>
+
+                <div class="estatistica">
+                    <span>PDFs analisados</span>
+                    <strong id="totalPDFs">0</strong>
+                </div>
+
+            </div>
+
+
+            <div class="tabela-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Número</th>
+                            <th>Plano</th>
+                            <th>Interesse</th>
+                            <th>Data do agendamento</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tbodyResultado"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        /*
+         * ============================================================
+         * VARIÁVEIS GLOBAIS
+         * ============================================================
+         */
+
+        let resultadoFinal = [];
+
+        let registrosCadastro = [];
+
+
+        /*
+         * ============================================================
+         * NORMALIZAÇÃO
+         * ============================================================
+         */
+
+        function normalizarTexto(valor) {
+
+            return String(valor ?? "")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+
+        function normalizarNome(valor) {
+
+            return normalizarTexto(valor)
+                .split(" ")
+                .filter(Boolean)
+                .join(" ");
+        }
+
+
+        function normalizarTelefone(valor) {
+
+            let numero = String(valor ?? "")
+                .replace(/\D/g, "");
+
+            /*
+             * Remove o código do Brasil quando existir.
+             * Exemplo:
+             * 5521999999999
+             * vira
+             * 21999999999
+             */
+
+            if (
+                numero.startsWith("55") &&
+                numero.length >= 12
+            ) {
+                numero = numero.substring(2);
+            }
+
+            return numero;
+        }
+
+
+        /*
+         * ============================================================
+         * DATA
+         * ============================================================
+         *
+         * A data da planilha é transformada em YYYY-MM-DD.
+         *
+         * NÃO usamos:
+         *
+         * new Date("23/09/2026")
+         *
+         * porque isso pode gerar interpretação errada.
+         */
+
+        function transformarData(valor) {
+
+            if (
+                valor === null ||
+                valor === undefined ||
+                valor === ""
+            ) {
+                return "";
+            }
+
+
+            /*
+             * Se o SheetJS entregou uma data real.
+             */
+
+            if (
+                valor instanceof Date &&
+                !isNaN(valor.getTime())
+            ) {
+
+                const ano = valor.getFullYear();
+
+                const mes = String(
+                    valor.getMonth() + 1
+                ).padStart(2, "0");
+
+                const dia = String(
+                    valor.getDate()
+                ).padStart(2, "0");
+
+                return `${ano}-${mes}-${dia}`;
+            }
+
+
+            /*
+             * Número serial do Excel.
+             */
+
+            if (
+                typeof valor === "number" &&
+                isFinite(valor)
+            ) {
+
+                const data = new Date(
+                    Date.UTC(
+                        1899,
+                        11,
+                        30
+                    ) +
+                    valor * 86400000
+                );
+
+                return (
+                    data.getUTCFullYear() +
+                    "-" +
+                    String(
+                        data.getUTCMonth() + 1
+                    ).padStart(2, "0") +
+                    "-" +
+                    String(
+                        data.getUTCDate()
+                    ).padStart(2, "0")
+                );
+            }
+
+
+            let texto = String(valor).trim();
+
+
+            /*
+             * Caso:
+             * 2026-09-23, 12:30
+             * 2026-09-23 12:30
+             */
+
+            let match = texto.match(
+                /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/
+            );
+
+            if (match) {
+
+                return (
+                    match[1] +
+                    "-" +
+                    String(match[2]).padStart(2, "0") +
+                    "-" +
+                    String(match[3]).padStart(2, "0")
+                );
+            }
+
+
+            /*
+             * Caso:
+             * 23/09/2026, 12:30
+             * 23/09/2026 12:30
+             */
+
+            match = texto.match(
+                /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})/
+            );
+
+            if (match) {
+
+                return (
+                    match[3] +
+                    "-" +
+                    String(match[2]).padStart(2, "0") +
+                    "-" +
+                    String(match[1]).padStart(2, "0")
+                );
+            }
+
+
+            return "";
+        }
+
+
+        function formatarDataBR(data) {
+
+            if (!data) {
+                return "";
+            }
+
+            const partes = data.split("-");
+
+            if (partes.length !== 3) {
+                return data;
+            }
+
+            return (
+                partes[2] +
+                "/" +
+                partes[1] +
+                "/" +
+                partes[0]
+            );
+        }
+
+
+        /*
+         * ============================================================
+         * IDENTIFICAÇÃO DAS COLUNAS DA PLANILHA
+         * ============================================================
+         */
+
+        function encontrarColuna(
+            linha,
+            possibilidades
+        ) {
+
+            const colunas = Object.keys(linha);
+
+            const procuradas =
+                possibilidades.map(
+                    normalizarTexto
+                );
+
+
+            /*
+             * Primeiro tenta encontrar o nome exato.
+             */
+
+            for (const coluna of colunas) {
+
+                if (
+                    procuradas.includes(
+                        normalizarTexto(coluna)
+                    )
+                ) {
+                    return coluna;
+                }
+            }
+
+
+            /*
+             * Depois tenta aproximação.
+             */
+
+            for (const coluna of colunas) {
+
+                const atual =
+                    normalizarTexto(coluna);
+
+                if (
+                    procuradas.some(
+                        procurada =>
+                            atual.includes(procurada) ||
+                            procurada.includes(atual)
+                    )
+                ) {
+                    return coluna;
+                }
+            }
+
+
+            return null;
+        }
+
+
+        /*
+         * ============================================================
+         * PLANO
+         * ============================================================
+         */
+
+        function identificarPlano(texto) {
+
+            const t =
+                normalizarTexto(texto);
+
+
+            const planos = [
+
+                [
+                    "Bradesco Dental",
+                    "bradesco dental"
+                ],
+
+                [
+                    "Bradesco Saúde",
+                    "bradesco saude"
+                ],
+
+                [
+                    "Bradesco",
+                    "bradesco"
+                ],
+
+                [
+                    "Amil Dental",
+                    "amil dental"
+                ],
+
+                [
+                    "Amil",
+                    "amil"
+                ],
+
+                [
+                    "OdontoPrev",
+                    "odontoprev"
+                ],
+
+                [
+                    "Odontogroup",
+                    "odontogroup"
+                ],
+
+                [
+                    "Sempre Odonto",
+                    "sempre odonto"
+                ],
+
+                [
+                    "Unimed",
+                    "unimed"
+                ],
+
+                [
+                    "SulAmérica",
+                    "sulamerica"
+                ],
+
+                [
+                    "Particular",
+                    "particular"
+                ],
+
+                [
+                    "Sem convênio",
+                    "sem convenio"
+                ],
+
+                [
+                    "Sem plano",
+                    "sem plano"
+                ]
+
+            ];
+
+
+            for (const [nome, termo] of planos) {
+
+                if (t.includes(termo)) {
+                    return nome;
+                }
+            }
+
+
+            return "";
+        }
+
+
+        /*
+         * ============================================================
+         * INTERESSE
+         * ============================================================
+         *
+         * O interesse NÃO será usado para filtrar.
+         * Ele apenas será mostrado quando for identificado.
+         */
+
+        function identificarInteresse(texto) {
+
+            const t =
+                normalizarTexto(texto);
+
+
+            if (
+                /\bprotocolo\b/.test(t)
+            ) {
+                return "Protocolo";
+            }
+
+
+            if (
+                /\bimplante(s)?\b/.test(t)
+            ) {
+                return "Implante";
+            }
+
+
+            if (
+                /\bprotese(s)?\b/.test(t) ||
+                /\bdentadura\b/.test(t)
+            ) {
+                return "Prótese";
+            }
+
+
+            return "";
+        }
+
+
+        /*
+         * ============================================================
+         * TRANSFORMA UMA LINHA DA PLANILHA EM REGISTRO
+         * ============================================================
+         */
+
+        function extrairAgendamento(linha) {
+
+            const colunaNome =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Nome do contato",
+                        "Nome",
+                        "Nome completo",
+                        "Paciente",
+                        "Cliente"
+                    ]
+                );
+
+
+            const colunaTelefone =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Telefone",
+                        "Número",
+                        "Celular",
+                        "WhatsApp"
+                    ]
+                );
+
+
+            const colunaData =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Data e horário do agendamento",
+                        "Data do agendamento",
+                        "Data",
+                        "Agendamento"
+                    ]
+                );
+
+
+            const colunaStatus =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Status"
+                    ]
+                );
+
+
+            const colunaTitulo =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Título",
+                        "Titulo",
+                        "Assunto"
+                    ]
+                );
+
+
+            const colunaObservacao =
+                encontrarColuna(
+                    linha,
+                    [
+                        "Observações/descrição",
+                        "Observações",
+                        "Descrição",
+                        "Descricao",
+                        "Observação"
+                    ]
+                );
+
+
+            const nome =
+                colunaNome
+                    ? String(
+                        linha[colunaNome] ?? ""
+                    ).trim()
+                    : "";
+
+
+            const numero =
+                colunaTelefone
+                    ? String(
+                        linha[colunaTelefone] ?? ""
+                    ).trim()
+                    : "";
+
+
+            const data =
+                colunaData
+                    ? transformarData(
+                        linha[colunaData]
+                    )
+                    : "";
+
+
+            const status =
+                colunaStatus
+                    ? String(
+                        linha[colunaStatus] ?? ""
+                    ).trim()
+                    : "";
+
+
+            const titulo =
+                colunaTitulo
+                    ? String(
+                        linha[colunaTitulo] ?? ""
+                    )
+                    : "";
+
+
+            const observacao =
+                colunaObservacao
+                    ? String(
+                        linha[colunaObservacao] ?? ""
+                    )
+                    : "";
+
+
+            const textoAuxiliar =
+                titulo +
+                " " +
+                observacao;
+
+
+            return {
+
+                nome: nome,
+
+                numero: numero,
+
+                data: data,
+
+                status: status,
+
+                plano:
+                    identificarPlano(
+                        textoAuxiliar
+                    ),
+
+                interesse:
+                    identificarInteresse(
+                        textoAuxiliar
+                    )
+            };
+        }
+
+
+        /*
+         * ============================================================
+         * LER PLANILHA
+         * ============================================================
+         */
+
+        async function lerPlanilha(arquivo) {
+
+            const buffer =
+                await arquivo.arrayBuffer();
+
+
+            const workbook =
+                XLSX.read(
+                    buffer,
+                    {
+                        type: "array",
+                        cellDates: true,
+                        raw: true
+                    }
+                );
+
+
+            const registros = [];
+
+
+            for (
+                const nomeAba of workbook.SheetNames
+            ) {
+
+                const planilha =
+                    workbook.Sheets[nomeAba];
+
+
+                const linhas =
+                    XLSX.utils.sheet_to_json(
+                        planilha,
+                        {
+                            defval: "",
+                            raw: true
+                        }
+                    );
+
+
+                for (const linha of linhas) {
+
+                    const agendamento =
+                        extrairAgendamento(
+                            linha
+                        );
+
+
+                    /*
+                     * Ignora somente linhas que realmente
+                     * não tenham nome nem telefone.
+                     */
+
+                    if (
+                        agendamento.nome ||
+                        agendamento.numero
+                    ) {
+
+                        registros.push(
+                            agendamento
+                        );
+                    }
+                }
+            }
+
+
+            return registros;
+        }
+
+
+        /*
+         * ============================================================
+         * LER PDF
+         * ============================================================
+         *
+         * O PDF fornecido possui uma estrutura onde:
+         *
+         * NOME....: NOME DO PACIENTE
+         * SITUAÇÃO:
+         * ...
+         * FONE - 1: TELEFONE
+         * ...
+         * NOME...: CPF..: RG..: CADASTRO.:
+         *
+         * Portanto não podemos procurar o telefone somente na mesma
+         * linha do nome.
+         *
+         * Aqui pegamos o registro inteiro entre um nome e o próximo.
+         */
+
+        async function lerPDF(arquivo) {
+
+            if (!window.pdfjsPronto) {
+
+                throw new Error(
+                    "O leitor de PDF ainda está carregando. Aguarde alguns segundos e tente novamente."
+                );
+            }
+
+
+            const buffer =
+                await arquivo.arrayBuffer();
+
+
+            const pdf =
+                await window.pdfjsLib.getDocument(
+                    {
+                        data: buffer
+                    }
+                ).promise;
+
+
+            const linhas = [];
+
+
+            for (
+                let pagina = 1;
+                pagina <= pdf.numPages;
+                pagina++
+            ) {
+
+                const page =
+                    await pdf.getPage(
+                        pagina
+                    );
+
+
+                const content =
+                    await page.getTextContent();
+
+
+                const itens =
+                    content.items
+                        .map(item => {
+
+                            return {
+
+                                texto:
+                                    item.str || "",
+
+                                x:
+                                    item.transform
+                                        ? item.transform[4]
+                                        : 0,
+
+                                y:
+                                    item.transform
+                                        ? item.transform[5]
+                                        : 0
+                            };
+                        })
+                        .filter(
+                            item =>
+                                item.texto.trim()
+                        );
+
+
+                /*
+                 * Junta textos que estão na mesma linha.
+                 */
+
+                const grupos = [];
+
+
+                for (const item of itens) {
+
+                    let grupo =
+                        grupos.find(
+                            g =>
+                                Math.abs(
+                                    g.y - item.y
+                                ) <= 3
+                        );
+
+
+                    if (!grupo) {
+
+                        grupo = {
+                            y: item.y,
+                            itens: []
+                        };
+
+                        grupos.push(
+                            grupo
+                        );
+                    }
+
+
+                    grupo.itens.push(
+                        item
+                    );
+                }
+
+
+                /*
+                 * Ordem vertical da página.
+                 */
+
+                grupos.sort(
+                    (a, b) =>
+                        b.y - a.y
+                );
+
+
+                for (const grupo of grupos) {
+
+                    grupo.itens.sort(
+                        (a, b) =>
+                            a.x - b.x
+                    );
+
+
+                    const texto =
+                        grupo.itens
+                            .map(
+                                item =>
+                                    item.texto
+                            )
+                            .join(" ")
+                            .trim();
+
+
+                    if (texto) {
+                        linhas.push(texto);
+                    }
+                }
+            }
+
+
+            return linhas;
+        }
+
+
+        /*
+         * ============================================================
+         * TRANSFORMAR PDF EM REGISTROS
+         * ============================================================
+         */
+
+        function criarRegistrosCadastro(linhas) {
+
+            const registros = [];
+
+
+            for (
+                let i = 0;
+                i < linhas.length;
+                i++
+            ) {
+
+                const linha =
+                    linhas[i].trim();
+
+
+                /*
+                 * Procura somente linhas que tenham:
+                 *
+                 * NOME....: NOME REAL
+                 *
+                 * Não considera:
+                 *
+                 * NOME...: CPF..: RG..: CADASTRO.:
+                 */
+
+                const match =
+                    linha.match(
+                        /^NOME\s*\.{2,}\s*:\s*(.+)$/i
+                    );
+
+
+                if (!match) {
+                    continue;
+                }
+
+
+                const nomeExtraido =
+                    match[1].trim();
+
+
+                const nomeNormalizado =
+                    normalizarNome(
+                        nomeExtraido
+                    );
+
+
+                /*
+                 * Descarta cabeçalhos vazios.
+                 */
+
+                if (
+                    !nomeNormalizado ||
+                    nomeNormalizado.includes(
+                        "cpf"
+                    ) ||
+                    nomeNormalizado.includes(
+                        "rg"
+                    ) ||
+                    nomeNormalizado.includes(
+                        "cadastro"
+                    )
+                ) {
+                    continue;
+                }
+
+
+                /*
+                 * O telefone está depois do nome
+                 * e antes do próximo registro.
+                 */
+
+                let telefoneEncontrado = "";
+
+
+                for (
+                    let j = i + 1;
+                    j < linhas.length;
+                    j++
+                ) {
+
+                    const proximaLinha =
+                        linhas[j].trim();
+
+
+                    /*
+                     * Chegou no próximo paciente.
+                     */
+
+                    const proximoNome =
+                        proximaLinha.match(
+                            /^NOME\s*\.{2,}\s*:\s*(.+)$/i
+                        );
+
+
+                    if (
+                        proximoNome &&
+                        normalizarNome(
+                            proximoNome[1]
+                        ) &&
+                        !normalizarNome(
+                            proximoNome[1]
+                        ).includes("cpf")
+                    ) {
+
+                        break;
+                    }
+
+
+                    const telefoneMatch =
+                        proximaLinha.match(
+                            /FONE\s*-\s*1\s*:\s*(.+?)(?:\s+FONE\s*-\s*2|$)/i
+                        );
+
+
+                    if (telefoneMatch) {
+
+                        telefoneEncontrado =
+                            normalizarTelefone(
+                                telefoneMatch[1]
+                            );
+
+                        break;
+                    }
+                }
+
+
+                registros.push({
+
+                    nome:
+                        nomeExtraido,
+
+                    nomeNormalizado:
+                        nomeNormalizado,
+
+                    telefone:
+                        telefoneEncontrado
+                });
+            }
+
+
+            return registros;
+        }
+
+
+        /*
+         * ============================================================
+         * COMPARAÇÃO
+         * ============================================================
+         *
+         * Um paciente é considerado encontrado no cadastro se:
+         *
+         * 1. O telefone bater exatamente; OU
+         * 2. O nome completo normalizado bater exatamente.
+         *
+         * Também fazemos uma comparação de nome por partes para
+         * pequenas diferenças de acentuação/pontuação.
+         */
+
+        function pacienteExisteNoCadastro(
+            paciente
+        ) {
+
+            const telefonePlanilha =
+                normalizarTelefone(
+                    paciente.numero
+                );
+
+
+            const nomePlanilha =
+                normalizarNome(
+                    paciente.nome
+                );
+
+
+            /*
+             * PRIMEIRO: telefone.
+             */
+
+            if (telefonePlanilha) {
+
+                const encontrouTelefone =
+                    registrosCadastro.some(
+                        cadastro => {
+
+                            if (
+                                !cadastro.telefone
+                            ) {
+                                return false;
+                            }
+
+
+                            return (
+                                cadastro.telefone ===
+                                telefonePlanilha
+                            );
+                        }
+                    );
+
+
+                if (encontrouTelefone) {
+                    return true;
+                }
+
+
+                /*
+                 * Alguns sistemas podem mostrar somente
+                 * os últimos 8 dígitos.
+                 */
+
+                if (
+                    telefonePlanilha.length >= 8
+                ) {
+
+                    const ultimos8 =
+                        telefonePlanilha.slice(
+                            -8
+                        );
+
+
+                    const encontrouUltimos8 =
+                        registrosCadastro.some(
+                            cadastro => {
+
+                                if (
+                                    !cadastro.telefone
+                                ) {
+                                    return false;
+                                }
+
+
+                                return (
+                                    cadastro.telefone.slice(-8) ===
+                                    ultimos8
+                                );
+                            }
+                        );
+
+
+                    if (encontrouUltimos8) {
+                        return true;
+                    }
+                }
+            }
+
+
+            /*
+             * SEGUNDO: nome completo.
+             */
+
+            if (nomePlanilha) {
+
+                const encontrouNome =
+                    registrosCadastro.some(
+                        cadastro =>
+                            cadastro.nomeNormalizado ===
+                            nomePlanilha
+                    );
+
+
+                if (encontrouNome) {
+                    return true;
+                }
+            }
+
+
+            /*
+             * TERCEIRO: nome por partes.
+             *
+             * Usado somente quando o nome não bate exatamente.
+             */
+
+            if (nomePlanilha) {
+
+                const partes =
+                    nomePlanilha
+                        .split(" ")
+                        .filter(
+                            parte =>
+                                parte.length >= 3
+                        );
+
+
+                if (
+                    partes.length >= 2
+                ) {
+
+                    const encontrouPorPartes =
+                        registrosCadastro.some(
+                            cadastro => {
+
+                                const nomeCadastro =
+                                    cadastro.nomeNormalizado;
+
+
+                                const quantidade =
+                                    partes.filter(
+                                        parte =>
+                                            nomeCadastro
+                                                .split(" ")
+                                                .includes(
+                                                    parte
+                                                )
+                                    ).length;
+
+
+                                /*
+                                 * Para nomes maiores,
+                                 * exigimos pelo menos 2 partes.
+                                 */
+
+                                return (
+                                    quantidade >= 2
+                                );
+                            }
+                        );
+
+
+                    if (encontrouPorPartes) {
+                        return true;
+                    }
+                }
+            }
+
+
+            return false;
+        }
+
+
+        /*
+         * ============================================================
+         * STATUS DA TELA
+         * ============================================================
+         */
+
+        function atualizarStatus(
+            mensagem,
+            erro = false
+        ) {
+
+            const elemento =
+                document.getElementById(
+                    "status"
+                );
+
+
+            elemento.textContent =
+                mensagem;
+
+
+            elemento.className =
+                erro
+                    ? "status erro"
+                    : "status";
+        }
+
+
+        /*
+         * ============================================================
+         * PROCESSAMENTO PRINCIPAL
+         * ============================================================
+         */
+
+        async function processarArquivos() {
+
+            const botao =
+                document.getElementById(
+                    "btnProcessar"
+                );
+
+
+            try {
+
+                const dataInicial =
+                    document.getElementById(
+                        "dataInicial"
+                    ).value;
+
+
+                const dataFinal =
+                    document.getElementById(
+                        "dataFinal"
+                    ).value;
+
+
+                const arquivosPlanilha =
+                    Array.from(
+                        document.getElementById(
+                            "planilhas"
+                        ).files
+                    );
+
+
+                const arquivosPDF =
+                    Array.from(
+                        document.getElementById(
+                            "pdfs"
+                        ).files
+                    );
+
+
+                /*
+                 * Validações.
+                 */
+
+                if (
+                    !dataInicial ||
+                    !dataFinal
+                ) {
+
+                    throw new Error(
+                        "Informe a data inicial e a data final."
+                    );
+                }
+
+
+                if (
+                    dataInicial > dataFinal
+                ) {
+
+                    throw new Error(
+                        "A data inicial não pode ser maior que a data final."
+                    );
+                }
+
+
+                if (
+                    arquivosPlanilha.length === 0
+                ) {
+
+                    throw new Error(
+                        "Selecione pelo menos uma planilha."
+                    );
+                }
+
+
+                if (
+                    arquivosPDF.length === 0
+                ) {
+
+                    throw new Error(
+                        "Selecione pelo menos um PDF de cadastro."
+                    );
+                }
+
+
+                botao.disabled = true;
+
+                document.getElementById(
+                    "btnExportar"
+                ).disabled = true;
+
+
+                /*
+                 * ====================================================
+                 * 1. LER TODAS AS PLANILHAS
+                 * ====================================================
+                 */
+
+                atualizarStatus(
+                    "1/3 - Lendo todas as planilhas..."
+                );
+
+
+                let todosAgendamentos = [];
+
+
+                for (
+                    const arquivo of arquivosPlanilha
+                ) {
+
+                    const registros =
+                        await lerPlanilha(
+                            arquivo
+                        );
+
+
+                    todosAgendamentos.push(
+                        ...registros
+                    );
+                }
+
+
+                /*
+                 * ====================================================
+                 * 2. FILTRAR SOMENTE PELA DATA DA PLANILHA
+                 * ====================================================
+                 *
+                 * IMPORTANTE:
+                 *
+                 * O PDF não participa deste filtro.
+                 *
+                 * O status também não participa.
+                 *
+                 * O interesse também não participa.
+                 */
+
+                const agendamentosNoPeriodo =
+                    todosAgendamentos.filter(
+                        paciente => {
+
+                            if (
+                                !paciente.data
+                            ) {
+                                return false;
+                            }
+
+
+                            return (
+                                paciente.data >=
+                                dataInicial &&
+                                paciente.data <=
+                                dataFinal
+                            );
+                        }
+                    );
+
+
+                /*
+                 * ====================================================
+                 * 3. LER TODOS OS PDFs
+                 * ====================================================
+                 */
+
+                atualizarStatus(
+                    "2/3 - Lendo todos os PDFs de cadastro..."
+                );
+
+
+                let todasLinhasPDF = [];
+
+
+                for (
+                    const arquivo of arquivosPDF
+                ) {
+
+                    const linhas =
+                        await lerPDF(
+                            arquivo
+                        );
+
+
+                    todasLinhasPDF.push(
+                        ...linhas
+                    );
+                }
+
+
+                /*
+                 * Transforma o texto dos PDFs em registros individuais.
+                 */
+
+                registrosCadastro =
+                    criarRegistrosCadastro(
+                        todasLinhasPDF
+                    );
+
+
+                /*
+                 * ====================================================
+                 * 4. COMPARAR PLANILHA x CADASTRO
+                 * ====================================================
+                 */
+
+                atualizarStatus(
+                    "3/3 - Comparando nomes e números..."
+                );
+
+
+                resultadoFinal = [];
+
+
+                let encontradosCadastro = 0;
+
+
+                for (
+                    const paciente
+                    of agendamentosNoPeriodo
+                ) {
+
+                    const existe =
+                        pacienteExisteNoCadastro(
+                            paciente
+                        );
+
+
+                    if (existe) {
+
+                        encontradosCadastro++;
+
+                    } else {
+
+                        resultadoFinal.push(
+                            paciente
+                        );
+                    }
+                }
+
+
+                /*
+                 * TRAVA FINAL:
+                 *
+                 * Nenhum resultado fora do período pode aparecer.
+                 */
+
+                resultadoFinal =
+                    resultadoFinal.filter(
+                        paciente =>
+                            paciente.data >=
+                                dataInicial &&
+                            paciente.data <=
+                                dataFinal
+                    );
+
+
+                /*
+                 * Ordenação por data e nome.
+                 */
+
+                resultadoFinal.sort(
+                    (a, b) => {
+
+                        const dataComparacao =
+                            a.data.localeCompare(
+                                b.data
+                            );
+
+
+                        if (
+                            dataComparacao !== 0
+                        ) {
+                            return dataComparacao;
+                        }
+
+
+                        return a.nome.localeCompare(
+                            b.nome,
+                            "pt-BR"
+                        );
+                    }
+                );
+
+
+                /*
+                 * ====================================================
+                 * ESTATÍSTICAS
+                 * ====================================================
+                 */
+
+                document.getElementById(
+                    "totalPeriodo"
+                ).textContent =
+                    agendamentosNoPeriodo.length;
+
+
+                document.getElementById(
+                    "totalCadastro"
+                ).textContent =
+                    encontradosCadastro;
+
+
+                document.getElementById(
+                    "totalFaltosos"
+                ).textContent =
+                    resultadoFinal.length;
+
+
+                document.getElementById(
+                    "totalPDFs"
+                ).textContent =
+                    arquivosPDF.length;
+
+
+                /*
+                 * ====================================================
+                 * MOSTRAR RESULTADO
+                 * ====================================================
+                 */
+
+                renderizarResultado();
+
+
+                document.getElementById(
+                    "resultadoCard"
+                ).style.display =
+                    "block";
+
+
+                document.getElementById(
+                    "btnExportar"
+                ).disabled =
+                    resultadoFinal.length === 0;
+
+
+                atualizarStatus(
+                    "Processamento concluído.\n\n" +
+                    "Período: " +
+                    formatarDataBR(dataInicial) +
+                    " até " +
+                    formatarDataBR(dataFinal) +
+                    "\n\n" +
+                    "Agendamentos encontrados nas planilhas: " +
+                    agendamentosNoPeriodo.length +
+                    "\n" +
+                    "Encontrados no cadastro: " +
+                    encontradosCadastro +
+                    "\n" +
+                    "Não encontrados no cadastro: " +
+                    resultadoFinal.length +
+                    "\n\n" +
+                    "Status: IGNORADO.\n" +
+                    "Interesse: IGNORADO.\n" +
+                    "Comparação: NOME + NÚMERO."
+                );
+
+            } catch (erro) {
+
+                console.error(
+                    erro
+                );
+
+
+                atualizarStatus(
+                    erro.message ||
+                    String(erro),
+                    true
+                );
+
+            } finally {
+
+                botao.disabled = false;
+            }
+        }
+
+
+        /*
+         * ============================================================
+         * RENDERIZAR TABELA
+         * ============================================================
+         */
+
+        function renderizarResultado() {
+
+            const tbody =
+                document.getElementById(
+                    "tbodyResultado"
+                );
+
+
+            tbody.innerHTML = "";
+
+
+            if (
+                resultadoFinal.length === 0
+            ) {
+
+                tbody.innerHTML =
+                    `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="vazio"
+                        >
+                            Nenhum paciente encontrado.
+                        </td>
+                    </tr>
+                    `;
+
+                return;
+            }
+
+
+            for (
+                const paciente
+                of resultadoFinal
+            ) {
+
+                const tr =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                const valores = [
+
+                    paciente.nome,
+
+                    paciente.numero,
+
+                    paciente.plano ||
+                        "Não identificado",
+
+                    paciente.interesse ||
+                        "Não identificado",
+
+                    formatarDataBR(
+                        paciente.data
+                    ),
+
+                    paciente.status ||
+                        "Sem status"
+
+                ];
+
+
+                for (
+                    const valor
+                    of valores
+                ) {
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    td.textContent =
+                        valor;
+
+
+                    tr.appendChild(
+                        td
+                    );
+                }
+
+
+                tbody.appendChild(
+                    tr
+                );
+            }
+        }
+
+
+        /*
+         * ============================================================
+         * EXPORTAR EXCEL
+         * ============================================================
+         */
+
+        function exportarExcel() {
+
+            if (
+                resultadoFinal.length === 0
+            ) {
+
+                alert(
+                    "Não há pacientes para exportar."
+                );
+
+                return;
+            }
+
+
+            /*
+             * Cria as linhas da planilha.
+             */
+
+            const dados =
+                resultadoFinal.map(
+                    paciente => {
+
+                        return {
+
+                            "Nome":
+                                paciente.nome,
+
+                            "Número":
+                                paciente.numero,
+
+                            "Plano":
+                                paciente.plano ||
+                                "Não identificado",
+
+                            "Interesse":
+                                paciente.interesse ||
+                                "Não identificado",
+
+                            "Data do agendamento":
+                                formatarDataBR(
+                                    paciente.data
+                                ),
+
+                            "Status":
+                                paciente.status ||
+                                "Sem status"
+                        };
+                    }
+                );
+
+
+            /*
+             * Cria a planilha.
+             */
+
+            const worksheet =
+                XLSX.utils.json_to_sheet(
+                    dados
+                );
+
+
+            /*
+             * Ajusta a largura das colunas.
+             */
+
+            worksheet["!cols"] = [
+
+                {
+                    wch: 35
+                },
+
+                {
+                    wch: 18
+                },
+
+                {
+                    wch: 22
+                },
+
+                {
+                    wch: 20
+                },
+
+                {
+                    wch: 22
+                },
+
+                {
+                    wch: 18
+                }
+
+            ];
+
+
+            /*
+             * Cria o arquivo Excel.
+             */
+
+            const workbook =
+                XLSX.utils.book_new();
+
+
+            XLSX.utils.book_append_sheet(
+                workbook,
+                worksheet,
+                "Faltosos"
+            );
+
+
+            /*
+             * Nome do arquivo com a data do período.
+             */
+
+            const dataInicial =
+                document.getElementById(
+                    "dataInicial"
+                ).value
+                    .split("-")
+                    .reverse()
+                    .join("-");
+
+
+            const dataFinal =
+                document.getElementById(
+                    "dataFinal"
+                ).value
+                    .split("-")
+                    .reverse()
+                    .join("-");
+
+
+            const nomeArquivo =
+                `faltosos_${dataInicial}_a_${dataFinal}.xlsx`;
+
+
+            XLSX.writeFile(
+                workbook,
+                nomeArquivo
+            );
+        }
+
+
+        /*
+         * ============================================================
+         * LIMPAR
+         * ============================================================
+         */
+
+        function limparTudo() {
+
+            resultadoFinal = [];
+
+            registrosCadastro = [];
+
+
+            document.getElementById(
+                "dataInicial"
+            ).value = "";
+
+
+            document.getElementById(
+                "dataFinal"
+            ).value = "";
+
+
+            document.getElementById(
+                "planilhas"
+            ).value = "";
+
+
+            document.getElementById(
+                "pdfs"
+            ).value = "";
+
+
+            document.getElementById(
+                "tbodyResultado"
+            ).innerHTML = "";
+
+
+            document.getElementById(
+                "resultadoCard"
+            ).style.display =
+                "none";
+
+
+            document.getElementById(
+                "btnExportar"
+            ).disabled = true;
+
+
+            atualizarStatus(
+                "Selecione o período e os arquivos."
+            );
+        }
+    </script>
+
+</body>
+
+</html>
