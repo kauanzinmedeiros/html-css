@@ -1,3 +1,5 @@
 media queries - tamanhos e versões diferentes
 
 media query = media type + media features
+
+mobile first - celular primeiro (começar a programar na tela de um celular primeiro)
