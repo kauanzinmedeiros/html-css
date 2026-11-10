@@ -1,3 +1,7 @@
+grid layout = grade flexível - multidimensional
+
+=========================
+
 flexbox = caixa flexível - unidimensional
 
 vai depender do container
@@ -12,7 +16,60 @@ item não recebe flexbox, somente containers
 flex-container = elemento pai
 flex-items = elementos filhos
 
-=========================
+flex-direction (no elemento pai) = padrão é row(linha)
 
-grid layout = grade flexível - multidimensional
+row: esquerda pra direita
+row-reverse: direita pra esquerda
+column(vertical): cima pra baixo
+column-reverse: baixo pra cima
+
+
+EIXOS(axis) - primeiro eixo gerado é o eixo principal(main-axis)
+
+cada eixo tem dois pontos: main-start e main-end
+
+eixo transversal(cross-axis) = vertical 
+
+vai gerar dois pontos(cross-start e cross-end)
+
+
+------------------------
+
+no flex-direction: row;
+
+-o main-axis é esquerda pra direita
+-cross-axis vai de cima pra baixo
+
+
+
+no flex-direction: row-reverse;
+
+-main-axis vai de direita para esquerda
+-cross-axis vai de cima pra baixo
+
+
+no flex-direction: column;
+
+-main-axis vai de cima pra baixo
+-cross-axis vai de esquerda pra direita
+
+
+no flex-direction: column-reverse;
+
+-main-axis vai de baixo pra cima
+-cross-axis vai de esquerda pra direita
+
+-----------------------
+
+flex-wrap: quebra de itens
+
+padrão = nowrap; (não quebra)
+
+flex-wrap: wrap; (quebra no sentido do cross-axis)
+
+flex-wrap: wrap-reverse; (quebra no sentido reverso/oposto do cross-axis)
+
+ 
+
+
 
