@@ -1,0 +1,18 @@
+flexbox = caixa flexível - unidimensional
+
+vai depender do container
+
+display: flex;
+flex: auto;
+
+elemento pai = contêiner
+
+item não recebe flexbox, somente containers
+
+flex-container = elemento pai
+flex-items = elementos filhos
+
+=========================
+
+grid layout = grade flexível - multidimensional
+
